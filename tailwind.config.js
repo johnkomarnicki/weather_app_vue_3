@@ -1,14 +1,14 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        "primary-green": "#34495E",
-        "light-green": "#476583",
-        "dark-green": "#2D3741",
-        "bright-green": "#15FA8E",
+        "day-primary": "#00668A",
+        "day-secondary": "#004E71",
       },
+    },
+    fontFamily: {
+      Roboto: ["Roboto, sans-serif"],
     },
     container: {
       padding: "2rem",

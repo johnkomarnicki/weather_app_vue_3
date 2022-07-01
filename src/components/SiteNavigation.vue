@@ -1,23 +1,122 @@
 <template>
-  <header class="bg-primary-green">
-    <nav class="container flex items-center text-white py-6">
+  <header class="bg-day-primary sticky top-0 shadow-lg">
+    <nav
+      class="container flex flex-col sm:flex-row gap-4 items-center text-white py-6"
+    >
       <div class="flex items-center gap-3 flex-1">
         <i class="fa-regular fa-sun text-2xl"></i>
-        <h1 class="text-2xl">The Local Weather</h1>
+        <RouterLink :to="{ name: 'home' }">
+          <h1 class="text-2xl">The Local Weather</h1>
+        </RouterLink>
       </div>
-      <i
-        class="fa-solid 
-        fa-magnifying-glass 
-        text-xl 
-        hover:text-bright-green 
-        duration-150 
-        cursor-pointer"
+
+      <div class="flex gap-3">
+        <i
+          @click="toggleModal"
+          class="fa-solid 
+          fa-circle-info 
+          text-xl 
+          hover:text-day-secondary 
+          duration-150
+          cursor-pointer"
+        ></i>
+
+        <!-- Add City -->
+        <i
+          v-if="route.query.preview"
+          @click="addCity"
+          class="fa-solid 
+          fa-plus 
+          text-xl 
+          hover:text-day-secondary 
+          duration-150 
+          cursor-pointer"
+        >
+        </i>
+      </div>
+
+      <BaseModal
+        :modalActive="modalActive"
+        @close-modal="toggleModal"
       >
-      </i>
+        <!-- Modal Slot Content -->
+        <div class="text-black">
+          <h1 class="text-2xl mb-1">About:</h1>
+          <p class="mb-4">
+            The Local Weather allows you to track the current and
+            future weather of cities of your choosing.
+          </p>
+          <h2 class="text-2xl">How it works:</h2>
+          <ol class="list-decimal list-inside mb-4">
+            <li>
+              Search for your city by entering the name into the
+              search bar.
+            </li>
+            <li>
+              Select a city within the results, this will take
+              you to the current weather for your selection.
+            </li>
+            <li>
+              Track the city by clicking on the "+" icon in the
+              top right. This will save the city to view at a
+              later time on the home page.
+            </li>
+          </ol>
+
+          <h2 class="text-2xl">Removing a city</h2>
+          <p>
+            If you no longer wish to track a city, simply click
+            on the "" icon within the home page. This will enable
+            a edit mode. A "" icon should now be visible and
+            allow you to delete a city.
+          </p>
+        </div>
+      </BaseModal>
     </nav>
   </header>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
+import { uid } from "uid";
+import BaseModal from "./BaseModal.vue";
 
-<style lang="scss" scoped></style>
+const route = useRoute();
+const router = useRouter();
+const savedCities = ref([]);
+
+const addCity = async (searchResult) => {
+  if (localStorage.getItem("savedCities")) {
+    savedCities.value = JSON.parse(
+      localStorage.getItem("savedCities")
+    );
+  }
+
+  const locationObj = {
+    id: uid(),
+    state: route.params.state,
+    city: route.params.city,
+    coords: {
+      lat: route.query.lat,
+      lng: route.query.lng,
+    },
+  };
+
+  savedCities.value.push(locationObj);
+  localStorage.setItem(
+    "savedCities",
+    JSON.stringify(savedCities.value)
+  );
+
+  // get query
+  let query = Object.assign({}, route.query);
+  delete query.preview;
+  router.replace({ query });
+};
+
+const modalActive = ref(null);
+const toggleModal = () => {
+  modalActive.value = !modalActive.value;
+};
+</script>
